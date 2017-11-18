@@ -14,10 +14,12 @@ import android.text.TextUtils;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
+import com.lansoeditor.demo.helper.DemoFunctions;
 import com.lansoeditor.demo.helper.GetPathFromUri;
 import com.lansoeditor.demo.helper.MyVideoEditor;
 import com.lansosdk.videoeditor.VideoEditor;
@@ -34,7 +36,7 @@ public class PPPActivity extends Activity {
 
     public static final int RECORD_VIDEO = 100;
 
-    private VideoView mVideoView1,mVideoView2;
+    private VideoView mVideoView1,mVideoView2,mVideoView3;
     private String videoPath1,videoPath2;
     private boolean mIsSelectFirstVideoView;
     private ImageView ivPreview1,ivPreview2;
@@ -45,6 +47,9 @@ public class PPPActivity extends Activity {
     private int playOverNum;
     private ProgressDialog mProgressDialog;
     private MyVideoEditor mVideoEditor;
+    private SeekBar seekBar;
+    private TextView tvAudioLength;
+    private int mAudioProgress,mAudioCupLength,mAudioDuration;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -67,6 +72,10 @@ public class PPPActivity extends Activity {
         mVideoView2 =  (VideoView)  findViewById(R.id.videoview2);
         ivPreview1 = (ImageView) findViewById(R.id.iv_preview1);
         ivPreview2 = (ImageView) findViewById(R.id.iv_preview2);
+        mVideoView3 = (VideoView) findViewById(R.id.video_view3);
+
+        seekBar = (SeekBar) findViewById(R.id.seek_bar);
+        tvAudioLength = findViewById(R.id.tv_audio_length);
 
     }
 
@@ -140,6 +149,24 @@ public class PPPActivity extends Activity {
                 }
             }
         });
+
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                mAudioProgress = i;
+
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                onPreviewVideo(seekBar);
+            }
+        });
     }
 
     //预览
@@ -169,6 +196,9 @@ public class PPPActivity extends Activity {
                 audioPlayer.setDataSource(audioFile);
                 audioPlayer.prepare();
                 audioPlayer.start();
+                mAudioDuration = audioPlayer.getDuration();
+                mAudioCupLength = (int) (mAudioProgress*mAudioDuration*0.01);
+                audioPlayer.seekTo(mAudioCupLength);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -194,19 +224,22 @@ public class PPPActivity extends Activity {
 
             @Override
             public void doInBackground() {
-                 //裁剪两个视频尺寸 (这一步可以在裁剪视频时长的时候一起裁剪)
+                //裁剪音乐
                 // 合成两个视频、
-                // 替换音乐、
-                // 加水印、
-//                DemoFunctions.demoVideoCropOverlay()
-
+                // 替换音乐、加水印、
+                DemoFunctions.MyMixVideo(PPPActivity.this,mVideoEditor, videoPath1,videoPath2,audioFile,
+                        App.mPathString+"image.png", App.mPathString+"up1.mp4",
+                        (int) (mAudioCupLength*0.001), (int) ((mAudioDuration-mAudioCupLength)*0.001));
 
             }
 
             @Override
             public void onPostExecute() {
                 calcelProgressDialog();
-
+                if (mVideoEditor.fileExist(App.mPathString+"outtt.mp4")){
+                    mVideoView3.setVideoPath(App.mPathString+"outtt.mp4");
+                    mVideoView3.start();
+                }
             }
         });
 

@@ -13,6 +13,7 @@ import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -78,6 +79,12 @@ public class VideoCupActivity extends Activity {
     private boolean isDoCupPic = true;  //视频裁剪编辑
     private String mIntentVideo;
     private boolean isPPP;
+    private View frameView;  //采取范围框
+
+    private DisplayMetrics dm;
+    private int lastX;
+    private int lastY;
+    private int cupX = 0,cupY = 0;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -150,6 +157,7 @@ public class VideoCupActivity extends Activity {
         setContentView(R.layout.activity_video_cup);
         tVDuration = (TextView) findViewById(R.id.duration);
         mPreview = (VideoView) findViewById(R.id.preview);
+        frameView = findViewById(R.id.frameview);
 
         myVideoEditor = new MyVideoEditor();
         if(isRunning==false){
@@ -167,8 +175,69 @@ public class VideoCupActivity extends Activity {
             }
         });
 
+        initFrameView();
     }
 
+    //裁剪框
+    private void initFrameView() {
+        dm = getResources().getDisplayMetrics();
+        frameView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                int action = event.getAction();
+                final int screenWidth = dm.widthPixels;
+                final int screenHeight = dm.heightPixels;
+                        switch(action){
+                            case MotionEvent.ACTION_DOWN:
+                                lastX = (int) event.getRawX();// 获取触摸事件触摸位置的原始X坐标
+                                lastY = (int) event.getRawY();
+                                break;
+                            case MotionEvent.ACTION_MOVE:
+                                int dx = (int) event.getRawX() - lastX;
+                                int dy = (int) event.getRawY() - lastY;
+                                int l = v.getLeft() + dx;
+//                                int b = v.getBottom() + dy;
+                                int b = v.getBottom();
+                                int r = v.getRight() + dx;
+//                                int t = v.getTop() + dy;
+                                int t = v.getTop();
+                                // 下面判断移动是否超出屏幕
+                                if (l < 0) {
+                                    l = 0;
+                                    r = l + v.getWidth();
+                                }
+                                if (t < 0) {
+                                    t = 0;
+                                    b = t + v.getHeight();
+                                }
+                                if (r > screenWidth) {
+                                    r = screenWidth;
+                                    l = r - v.getWidth();
+                                }
+                                if (b > screenHeight) {
+                                    b = screenHeight;
+                                    t = b - v.getHeight();
+                                }
+                                v.layout(l, t, r, b);
+                                lastX = (int) event.getRawX();
+                                lastY = (int) event.getRawY();
+                                v.postInvalidate();
+                                break;
+                            case MotionEvent.ACTION_UP:
+                                if (mMediaInfo.prepare()){
+                                    cupX =  (int) (((double)frameView.getX()/screenWidth)*mMediaInfo.vWidth);
+                                }
+                                break;
+                            default:
+                                break;
+                }
+                return true;
+            }
+        });
+
+    }
+
+    //裁剪时长范围
     private void initVideoFrameList() {
         mFrameListView = (LinearLayout) findViewById(R.id.video_frame_list);
         mHandlerLeft = findViewById(R.id.handler_left);
@@ -383,8 +452,12 @@ public class VideoCupActivity extends Activity {
              */
             if (isDoCupPic) {
                 myVideoEditor.getPicFromVideo(selectedFilepath, mPathString + "image_%05d" + ".jpeg");
+//                myVideoEditor.executeGetSomeFrames(selectedFilepath, mPathString + "image_%05d" + ".jpeg",(float) 9/20);
             } else {
-                myVideoEditor.executeVideoCutOut(selectedFilepath, mPathString + "cupout.mp4", (int) mSelectedBeginMs / 1000, (int) (mSelectedEndMs - mSelectedBeginMs) / 1000);
+//                myVideoEditor.executeVideoCutOut(selectedFilepath, mPathString + "cupout.mp4", (int) mSelectedBeginMs / 1000, (int) (mSelectedEndMs - mSelectedBeginMs) / 1000);
+                  myVideoEditor.executeVideoExactCut(selectedFilepath, mPathString + "cupout.mp4",
+                          (int) mSelectedBeginMs / 1000, (int) (mSelectedEndMs - mSelectedBeginMs) / 1000,
+                           480,640,cupX,cupY,1000,false);
             }
             return null;
         }

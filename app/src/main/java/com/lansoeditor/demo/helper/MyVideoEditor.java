@@ -155,4 +155,58 @@ public class MyVideoEditor extends VideoEditor {
         }
     }
 
+
+    /**
+     * 根据设定的采样,获取视频的几行图片.
+     * 假如视频时长是30秒,想平均取5张图片,则sampleRate=5/30;
+     *
+     *
+     *如果您使用的是高级版本,则建议用ExtractVideoFrameDemoActivity来获取视频图片,因为直接返回bitmap,不存到文件中,速度相对快很多
+     *如果您使用的是高级版本,则建议用ExtractVideoFrameDemoActivity来获取视频图片,因为直接返回bitmap,不存到文件中,速度相对快很多
+     *如果您使用的是高级版本,则建议用ExtractVideoFrameDemoActivity来获取视频图片,因为直接返回bitmap,不存到文件中,速度相对快很多
+     *如果您使用的是高级版本,则建议用ExtractVideoFrameDemoActivity来获取视频图片,因为直接返回bitmap,不存到文件中,速度相对快很多
+     *
+     *
+     * @param videoFile
+     * @param dstDir
+     * @param sampeRate  一秒钟采样几张图片. 可以是小数.
+     * @return
+     */
+    public int executeGetSomeFrames(String videoFile, String dstDir, float sampeRate)
+    {
+        if(fileExist(videoFile)){
+
+            List<String> cmdList=new ArrayList<String>();
+
+            cmdList.add("-vcodec");
+            cmdList.add("lansoh264_dec");
+
+            cmdList.add("-i");
+            cmdList.add(videoFile);
+
+//					cmdList.add("-qscale:v");
+//					cmdList.add("2");
+
+            cmdList.add("-vsync");
+            cmdList.add("1");
+
+            cmdList.add("-r");
+            cmdList.add(String.valueOf(sampeRate));
+
+//					cmdList.add("-f");
+//					cmdList.add("image2");
+
+            cmdList.add("-y");
+
+            cmdList.add(dstDir);
+            String[] command=new String[cmdList.size()];
+            for(int i=0;i<cmdList.size();i++){
+                command[i]=(String)cmdList.get(i);
+            }
+            return  executeVideoEditor(command);
+
+        }else{
+            return VIDEO_EDITOR_EXECUTE_FAILED;
+        }
+    }
 }

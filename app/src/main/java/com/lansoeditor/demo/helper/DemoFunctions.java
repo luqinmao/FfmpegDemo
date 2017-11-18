@@ -3,6 +3,7 @@ package com.lansoeditor.demo.helper;
 import android.content.Context;
 import android.util.Log;
 
+import com.lansoeditor.demo.App;
 import com.lansosdk.videoeditor.CopyDefaultVideoAsyncTask;
 import com.lansosdk.videoeditor.CopyFileFromAssets;
 import com.lansosdk.videoeditor.MediaInfo;
@@ -53,7 +54,8 @@ public class DemoFunctions {
 	 *
 	 * 音视频合成:\n把一个纯音频文件和纯视频文件合并成一个mp4格式的多媒体文件, 如果源视频之前有音频,会首先删除音频部分. \n\n
 	 */
-	public static int demoAVMergeAndLogo(Context ctx, VideoEditor editor, String srcVideo,String inputAudio,String pic, String dstPath)
+	public static int demoAVMergeAndLogo(Context ctx, VideoEditor editor, String srcVideo,
+										 String inputAudio,String pic, String dstPath)
 	{
 		int ret=-1;
 		MediaInfo info=new MediaInfo(srcVideo,false);
@@ -564,8 +566,34 @@ public class DemoFunctions {
 			int bitrate=(int)(info.vBitRate*1.5f);
 			if(bitrate>2000*1000)
 				bitrate=2000*1000; //2M
-
 			return editor.mixVideo2(srcVideo1,srcVideo2,info.vCodecName,bitrate,dstVideo);
+		}else{
+			return -1;
+		}
+	}
+
+	/**
+	 // 合成两个视频、
+	 // 替换音乐、
+	 // 裁剪音乐
+	 // 加水印、
+	 */
+	public static int MyMixVideo(Context context,MyVideoEditor editor, String srcVideo1, String srcVideo2,
+								 String srcAudio,String srcPic, String dstVideo,int audioStartS,int audioDurationS)
+	{
+		MediaInfo info=new MediaInfo(srcVideo1);
+		if(info.prepare())
+		{
+			int bitrate=(int)(info.vBitRate*1.5f);
+			if(bitrate>2000*1000)
+				bitrate=2000*1000; //2M
+
+			//裁剪音乐
+			editor.executeAudioCutOut(srcAudio,App.mPathString+"audio.mp3",audioStartS,audioDurationS);
+			//合成视频
+			editor.mixVideo2(srcVideo1,srcVideo2,info.vCodecName,bitrate,dstVideo);
+			//音频替换.和增加logo
+			return demoAVMergeAndLogo(context,editor,dstVideo,App.mPathString+"audio.mp3",srcPic, App.mPathString+"up2.mp4");
 		}else{
 			return -1;
 		}
