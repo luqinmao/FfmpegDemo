@@ -6,14 +6,14 @@ import android.os.IBinder;
 
 import com.lansoeditor.demo.App;
 import com.lansoeditor.demo.MyAsyncTask;
-import com.lansoeditor.demo.helper.DemoFunctions;
 import com.lansoeditor.demo.helper.MyVideoEditor;
+import com.lansoeditor.demo.util.FunctionSDK;
 import com.lansosdk.videoeditor.VideoEditor;
 import com.lansosdk.videoeditor.onVideoEditorProgressListener;
 
 /**
  * user：lqm
- * desc：
+ * desc：执行服务
  */
 
 public class MyService extends Service {
@@ -28,6 +28,7 @@ public class MyService extends Service {
     private String dstVideo;
     private int audioStartS;
     private int audioDurationS;
+    private boolean mFirstExecute = true;
 
     @Override
     public void onCreate() {//Service被创建时回调
@@ -35,14 +36,6 @@ public class MyService extends Service {
         asyncTask = new MyAsyncTask();
         mVideoEditor=new MyVideoEditor();
 
-        mVideoEditor.setOnProgessListener(new onVideoEditorProgressListener() {  //发送执行进度
-            @Override
-            public void onProgress(VideoEditor v, int percent) {
-                Intent receiveIntent = new Intent(App.mReceiveString);
-                receiveIntent.putExtra("percent",percent);
-                sendBroadcast(receiveIntent);//发送广播
-            }
-        });
     }
 
     @Override
@@ -65,10 +58,15 @@ public class MyService extends Service {
             @Override
             public void doInBackground() {
                 //裁剪音乐
-                // 合成两个视频、
-                // 替换音乐、加水印、
-                DemoFunctions.MyMixVideo(MyService.this,mVideoEditor, srcVideo1,srcVideo2,srcAudio,
+                // 合成两个视频并加水印、
+                // 替换音乐、
+//                DemoFunctions.MyMixVideo(MyService.this,mVideoEditor, srcVideo1,srcVideo2,srcAudio,
+//                        srcPic, dstVideo,audioStartS, audioDurationS);
+
+                FunctionSDK.composeRightVideo(mVideoEditor, srcVideo1,srcVideo2,srcAudio,
                         srcPic, dstVideo,audioStartS, audioDurationS);
+
+
             }
 
             @Override
@@ -76,7 +74,20 @@ public class MyService extends Service {
 
             }
         });
-        asyncTask.execute();
+        if (mFirstExecute){
+            asyncTask.execute();
+            mFirstExecute = false;
+        }
+
+        mVideoEditor.setOnProgessListener(new onVideoEditorProgressListener() {  //发送执行进度
+            @Override
+            public void onProgress(VideoEditor v, int percent) {
+                Intent receiveIntent = new Intent(App.mReceiveString);
+                receiveIntent.putExtra("percent",percent);
+                sendBroadcast(receiveIntent);//发送广播
+            }
+        });
+
         return super.onStartCommand(intent, flags, startId);
     }
 

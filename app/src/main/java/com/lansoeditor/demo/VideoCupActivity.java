@@ -34,6 +34,7 @@ import com.lansoeditor.demo.helper.GetPathFromUri;
 import com.lansoeditor.demo.helper.MyVideoEditor;
 import com.lansoeditor.demo.util.PrefUtils;
 import com.lansosdk.videoeditor.MediaInfo;
+import com.lansosdk.videoeditor.SDKFileUtils;
 import com.lansosdk.videoeditor.VideoEditor;
 import com.lansosdk.videoeditor.onVideoEditorProgressListener;
 
@@ -494,6 +495,24 @@ public class VideoCupActivity extends Activity {
             } else {
                 calcelProgressDialog();
                 if (isPPP){
+
+                    for (int i = 1; i <= SLICE_COUNT; ++i) {
+                        String nan ="";
+                        if (i<10){
+                            nan = "0000"+i;
+                        }else if (i>=10 && i<100){
+                            nan = "000"+i;
+                        }else if (i>=100 && i<1000){
+                            nan = "00"+i;
+                        }else if (i>=1000 && i<10000){
+                            nan = "0"+i;
+                        }
+                        ///storage/emulated/0/lansongBox/image_00000.jpg
+                        String picString = mPathString+"image_"+nan+".jpeg";
+                        SDKFileUtils.deleteFile(picString);
+                    }
+
+
                     Intent intent = new Intent(VideoCupActivity.this, PPPActivity.class);
                     intent.putExtra("videopath",mPathString+"cupout.mp4");
                     setResult(RECORD_VIDEO, intent);

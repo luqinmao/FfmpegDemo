@@ -15,6 +15,7 @@ public class App extends Application{
     public static final String mReceiveString = "ACTION_TEST";
 
     public static final String mPathString = Environment.getExternalStorageDirectory()+ "/" + "aa/";
+    public static final String mPathStringB = Environment.getExternalStorageDirectory()+ "/" + "ab/";
 
     @Override
     public void onCreate() {

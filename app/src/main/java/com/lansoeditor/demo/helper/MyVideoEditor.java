@@ -160,13 +160,6 @@ public class MyVideoEditor extends VideoEditor {
      * 根据设定的采样,获取视频的几行图片.
      * 假如视频时长是30秒,想平均取5张图片,则sampleRate=5/30;
      *
-     *
-     *如果您使用的是高级版本,则建议用ExtractVideoFrameDemoActivity来获取视频图片,因为直接返回bitmap,不存到文件中,速度相对快很多
-     *如果您使用的是高级版本,则建议用ExtractVideoFrameDemoActivity来获取视频图片,因为直接返回bitmap,不存到文件中,速度相对快很多
-     *如果您使用的是高级版本,则建议用ExtractVideoFrameDemoActivity来获取视频图片,因为直接返回bitmap,不存到文件中,速度相对快很多
-     *如果您使用的是高级版本,则建议用ExtractVideoFrameDemoActivity来获取视频图片,因为直接返回bitmap,不存到文件中,速度相对快很多
-     *
-     *
      * @param videoFile
      * @param dstDir
      * @param sampeRate  一秒钟采样几张图片. 可以是小数.
@@ -199,6 +192,63 @@ public class MyVideoEditor extends VideoEditor {
             cmdList.add("-y");
 
             cmdList.add(dstDir);
+            String[] command=new String[cmdList.size()];
+            for(int i=0;i<cmdList.size();i++){
+                command[i]=(String)cmdList.get(i);
+            }
+            return  executeVideoEditor(command);
+
+        }else{
+            return VIDEO_EDITOR_EXECUTE_FAILED;
+        }
+    }
+
+
+    /**
+     * 合成左右视频的同时增加水印
+     *ffmpeg -i d:\aa.mp4 -i d:bb.mp4 -i d:\logo.png -filter_complex
+     *"[0:v]pad=w=2*iw[main];[main][1:v]overlay=x=w[upvideo];[upvideo][2:v]overlay=0:0" d:\cc.mp4
+     * @param srcPath1
+     * @param srcPath2
+     * @param decoder
+     * @param bitrate
+     * @param dstPath
+     * @return
+     */
+    public int  composeVideoAndLogo(String srcPath1, String srcPath2,String srcLogo, String decoder, int bitrate, String dstPath) {
+        if(fileExist(srcPath1)){
+
+            String filter= String.format(Locale.getDefault(),
+                    "[0:v]pad=w=2*iw[main];[main][1:v]overlay=x=w[upvideo];[upvideo][2:v]overlay=0:0");
+
+            List<String> cmdList=new ArrayList<String>();
+
+            cmdList.add("-vcodec");
+            cmdList.add(decoder);
+
+            cmdList.add("-i");
+            cmdList.add(srcPath1);
+            cmdList.add("-i");
+            cmdList.add(srcPath2);
+            cmdList.add("-i");
+            cmdList.add(srcLogo);
+
+            cmdList.add("-filter_complex");
+            cmdList.add(filter);
+
+//            cmdList.add("-acodec");
+//            cmdList.add("copy");
+            cmdList.add("-vcodec");
+            cmdList.add("lansoh264_enc"); //编码器
+            cmdList.add("-pix_fmt"); //可用的像素格式
+            cmdList.add("yuv420p");
+
+            cmdList.add("-b:v"); //设置视频码率
+            cmdList.add(checkBitRate(bitrate));
+
+            cmdList.add("-y");
+            cmdList.add(dstPath);
+
             String[] command=new String[cmdList.size()];
             for(int i=0;i<cmdList.size();i++){
                 command[i]=(String)cmdList.get(i);

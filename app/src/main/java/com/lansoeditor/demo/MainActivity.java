@@ -2,12 +2,14 @@ package com.lansoeditor.demo;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Toast;
 
 import com.anthonycr.grant.PermissionsManager;
 import com.anthonycr.grant.PermissionsResultAction;
+import com.lansoeditor.demo.helper.MyVideoEditor;
 
 import java.util.Locale;
 
@@ -53,5 +55,14 @@ public class MainActivity extends AppCompatActivity {
     public void picPlayPost(View view){
         startActivity(new Intent(MainActivity.this,PPPActivity.class));
     }
+    public void cupMp3(View view){
+        MyVideoEditor editor = new MyVideoEditor();
+        String srcAudio = Environment.getExternalStorageDirectory()+"/ab/music.mp3";
+        String srcAudio2 = Environment.getExternalStorageDirectory()+"/ab/musicout.mp3";
+        editor.executeAudioCutOut(srcAudio, srcAudio2,0,10);
+
+    }
+
+
 
 }

@@ -67,7 +67,6 @@ public class DemoFunctions {
 			if(info.isHaveAudio()){
 				video3= SDKFileUtils.createFileInBox(info.fileSuffix);
 				editor.executeDeleteAudio(video2, video3);
-
 				video2=video3;
 			}
 //	  		String audio= CopyDefaultVideoAsyncTask.copyFile(ctx,"aac20s.aac");
@@ -582,18 +581,17 @@ public class DemoFunctions {
 								 String srcAudio,String srcPic, String dstVideo,int audioStartS,int audioDurationS)
 	{
 		MediaInfo info=new MediaInfo(srcVideo1);
-		if(info.prepare())
-		{
+		if(info.prepare()) {
 			int bitrate=(int)(info.vBitRate*1.5f);
 			if(bitrate>2000*1000)
 				bitrate=2000*1000; //2M
 
 			//裁剪音乐
-			editor.executeAudioCutOut(srcAudio,App.mPathString+"audio.mp3",audioStartS,audioDurationS);
+			editor.executeAudioCutOut(srcAudio,App.mPathString+"audio.aac",audioStartS,audioDurationS);
 			//合成视频
 			editor.mixVideo2(srcVideo1,srcVideo2,info.vCodecName,bitrate,dstVideo);
 			//音频替换.和增加logo
-			return demoAVMergeAndLogo(context,editor,dstVideo,App.mPathString+"audio.mp3",srcPic, App.mPathString+"up2.mp4");
+			return demoAVMergeAndLogo(context,editor,dstVideo,App.mPathString+"audio.aac",srcPic, App.mPathString+"up2.mp4");
 		}else{
 			return -1;
 		}

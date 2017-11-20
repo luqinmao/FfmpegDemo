@@ -240,7 +240,7 @@ public class PPPActivity extends Activity {
         intent.putExtra("srcVideo1", videoPath1);
         intent.putExtra("srcVideo2", videoPath2);
         intent.putExtra("srcAudio", audioFile);
-        intent.putExtra("srcPic", App.mPathString+"image.png");
+        intent.putExtra("srcPic", App.mPathStringB+"image.png");
         intent.putExtra("dstVideo", App.mPathString+"up1.mp4");
         intent.putExtra("audioStartS", (int) (mAudioCupLength*0.001));
         intent.putExtra("audioDurationS", (int)((mAudioDuration-mAudioCupLength)*0.001));

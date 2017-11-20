@@ -56,7 +56,7 @@ public class ProgressActivity extends Activity {
     }
 
     public void onPlay(View view){
-        String videoPath = App.mPathString+"outtt.mp4";
+        String videoPath = App.mPathString+"up2.mp4";
         if (SDKFileUtils.fileExist(videoPath)){
             videoView.setVideoPath(videoPath);
             videoView.start();
