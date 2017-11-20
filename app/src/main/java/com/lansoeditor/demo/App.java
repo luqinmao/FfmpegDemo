@@ -12,6 +12,7 @@ import com.lansosdk.videoeditor.LoadLanSongSdk;
  */
 
 public class App extends Application{
+    public static final String mReceiveString = "ACTION_TEST";
 
     public static final String mPathString = Environment.getExternalStorageDirectory()+ "/" + "aa/";
 

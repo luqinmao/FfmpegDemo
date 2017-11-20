@@ -2,7 +2,10 @@ package com.lansoeditor.demo;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.media.MediaMetadataRetriever;
@@ -19,9 +22,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
-import com.lansoeditor.demo.helper.DemoFunctions;
 import com.lansoeditor.demo.helper.GetPathFromUri;
 import com.lansoeditor.demo.helper.MyVideoEditor;
+import com.lansoeditor.demo.service.MyService;
 import com.lansosdk.videoeditor.VideoEditor;
 import com.lansosdk.videoeditor.onVideoEditorProgressListener;
 
@@ -50,6 +53,7 @@ public class PPPActivity extends Activity {
     private SeekBar seekBar;
     private TextView tvAudioLength;
     private int mAudioProgress,mAudioCupLength,mAudioDuration;
+    private BroadcastReceiver mReceiver;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -59,7 +63,7 @@ public class PPPActivity extends Activity {
         init();
         initView();
         initListener();
-
+        initReceive();
     }
 
     private void init() {
@@ -169,6 +173,23 @@ public class PPPActivity extends Activity {
         });
     }
 
+    private void initReceive() {
+        //执行进度广播
+        IntentFilter intentFilter = new IntentFilter(App.mReceiveString);
+        mReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if(App.mReceiveString.equals(intent.getAction())){
+                    int percent = intent.getIntExtra("percent",0);
+
+                   if (mProgressDialog != null){
+                       mProgressDialog.setMessage("正在处理"+percent+"%");
+                   }
+                }
+            }
+        };
+        registerReceiver(mReceiver, intentFilter);
+    }
     //预览
     public void onPreviewVideo(View view){
         if (TextUtils.isEmpty(videoPath1)){
@@ -214,35 +235,24 @@ public class PPPActivity extends Activity {
 
     //进行合成
     public void onMixVideo(View view){
-        MyAsyncTask asyncTask = new MyAsyncTask();
-        asyncTask.execute();
-        asyncTask.setCallBack(new MyAsyncTask.TaskCallBackInterface() {
-            @Override
-            public void onPreExecute() {
-                showProgressDialog();
-            }
+        Intent intent = new Intent();
+        intent.setClass(this, MyService.class);
+        intent.putExtra("srcVideo1", videoPath1);
+        intent.putExtra("srcVideo2", videoPath2);
+        intent.putExtra("srcAudio", audioFile);
+        intent.putExtra("srcPic", App.mPathString+"image.png");
+        intent.putExtra("dstVideo", App.mPathString+"up1.mp4");
+        intent.putExtra("audioStartS", (int) (mAudioCupLength*0.001));
+        intent.putExtra("audioDurationS", (int)((mAudioDuration-mAudioCupLength)*0.001));
+        startService(intent);
 
-            @Override
-            public void doInBackground() {
-                //裁剪音乐
-                // 合成两个视频、
-                // 替换音乐、加水印、
-                DemoFunctions.MyMixVideo(PPPActivity.this,mVideoEditor, videoPath1,videoPath2,audioFile,
-                        App.mPathString+"image.png", App.mPathString+"up1.mp4",
-                        (int) (mAudioCupLength*0.001), (int) ((mAudioDuration-mAudioCupLength)*0.001));
+        Toast.makeText(PPPActivity.this,"执行处理中..",Toast.LENGTH_SHORT).show();
 
-            }
+    }
 
-            @Override
-            public void onPostExecute() {
-                calcelProgressDialog();
-                if (mVideoEditor.fileExist(App.mPathString+"outtt.mp4")){
-                    mVideoView3.setVideoPath(App.mPathString+"outtt.mp4");
-                    mVideoView3.start();
-                }
-            }
-        });
-
+    //执行进度
+    public void onProgress(View view){
+        startActivity(new Intent(PPPActivity.this,ProgressActivity.class));
     }
 
     //选择弹框
@@ -395,4 +405,7 @@ public class PPPActivity extends Activity {
             mProgressDialog=null;
         }
     }
+
+
+
 }

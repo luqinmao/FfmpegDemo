@@ -35,7 +35,10 @@
         <activity android:name=".VideoEditActivity"/>
         <activity android:name=".VideoPlayTestActivity"/>
         <activity android:name=".PPPActivity"/>
-        PPPActivity
+        <activity android:name=".ProgressActivity"/>
+
+        <service android:name=".service.MyService"/>
+
 
     </application>
 
