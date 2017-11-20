@@ -43,7 +43,6 @@ import java.util.Locale;
  */
 public class VideoEditor {
 
-
 private static final String TAG="VideoEditor";
 
 public static final int VIDEO_EDITOR_EXECUTE_SUCCESS1 =0;

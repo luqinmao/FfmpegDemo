@@ -218,9 +218,7 @@ public class MyVideoEditor extends VideoEditor {
     public int  composeVideoAndLogo(String srcPath1, String srcPath2,String srcLogo, String decoder, int bitrate, String dstPath) {
         if(fileExist(srcPath1)){
 
-            String filter= String.format(Locale.getDefault(),
-                    "[0:v]pad=w=2*iw[main];[main][1:v]overlay=x=w[upvideo];[upvideo][2:v]overlay=0:0");
-
+            String filter= String.format(Locale.getDefault(), "[0:v]pad=w=2*iw[main];[main][1:v]overlay=x=w[upvideo];[upvideo][2:v]overlay=main_w-overlay_w-10 : main_h-overlay_h-10");
             List<String> cmdList=new ArrayList<String>();
 
             cmdList.add("-vcodec");
