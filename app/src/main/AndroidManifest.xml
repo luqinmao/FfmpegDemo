@@ -36,6 +36,8 @@
         <activity android:name=".VideoPlayTestActivity"/>
         <activity android:name=".PPPActivity"/>
         <activity android:name=".ProgressActivity"/>
+        <activity android:name=".JamMainActivity"/>
+
 
         <service android:name=".service.MyService"/>
 

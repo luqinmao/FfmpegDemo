@@ -38,6 +38,7 @@ import com.lansosdk.videoeditor.SDKFileUtils;
 import com.lansosdk.videoeditor.VideoEditor;
 import com.lansosdk.videoeditor.onVideoEditorProgressListener;
 
+import java.text.DecimalFormat;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
@@ -161,6 +162,9 @@ public class VideoCupActivity extends Activity {
         frameView = findViewById(R.id.frameview);
 
         myVideoEditor = new MyVideoEditor();
+
+        mMediaInfo = new MediaInfo(selectedFilepath);
+
         if(isRunning==false){
             isDoCupPic = true;
             new SubAsyncTask().execute();  //开始VideoEditor方法的处理==============>
@@ -448,17 +452,19 @@ public class VideoCupActivity extends Activity {
         @Override
         protected synchronized Boolean doInBackground(Object... params) {
             // TODO Auto-generated method stub
-            /**
-             * 真正执行的代码,因演示的方法过多, 用每个方法的ID的形式来区分, 您实际使用中, 可直接填入具体方法的代码.
-             */
+
             if (isDoCupPic) {
-                myVideoEditor.getPicFromVideo(selectedFilepath, mPathString + "image_%05d" + ".jpeg");
-//                myVideoEditor.executeGetSomeFrames(selectedFilepath, mPathString + "image_%05d" + ".jpeg",(float) 9/20);
+                if (mMediaInfo.prepare()){
+                    DecimalFormat df = new DecimalFormat("#.00");
+                    myVideoEditor.getPicFromVideo(selectedFilepath, mPathString + "image_%05d" + ".jpeg",
+                            String.valueOf(df.format(9/mMediaInfo.aDuration)));
+                }
+//                myVideoEditor.executeGetSomeFrames(selectedFilepath, mPathString + "image_%05d" + ".jpeg");
             } else {
 //                myVideoEditor.executeVideoCutOut(selectedFilepath, mPathString + "cupout.mp4", (int) mSelectedBeginMs / 1000, (int) (mSelectedEndMs - mSelectedBeginMs) / 1000);
                   myVideoEditor.executeVideoExactCut(selectedFilepath, mPathString + "cupout.mp4",
                           (int) mSelectedBeginMs / 1000, (int) (mSelectedEndMs - mSelectedBeginMs) / 1000,
-                           480,640,cupX,cupY,1000,false);
+                           480,640,cupX,cupY,1500*1000,false);
             }
             return null;
         }
@@ -473,7 +479,6 @@ public class VideoCupActivity extends Activity {
                 isRunning = false;
 
                 //执行接下来的步骤
-                mMediaInfo = new MediaInfo(selectedFilepath);
                 if (mMediaInfo.prepare()) {
                     mSelectedEndMs = mDurationMs = (long) (mMediaInfo.aDuration * 1000);
                     tVDuration.setText("时长: " + formatTime(mDurationMs));

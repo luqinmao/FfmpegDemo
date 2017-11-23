@@ -119,7 +119,7 @@ public class MyVideoEditor extends VideoEditor {
     /**
      * 从视频获取图像帧
      */
-    public int  getPicFromVideo(String srcPath, String dstPath)
+    public int  getPicFromVideo(String srcPath, String dstPath,String frameDurationM)
     {
         //ffmpeg -i d:\aa.mp4 -r 1  -vframes 9 d:\image_%05d.jpeg
         if(fileExist(srcPath)){
@@ -133,7 +133,7 @@ public class MyVideoEditor extends VideoEditor {
             cmdList.add(srcPath);
 
             cmdList.add("-r");
-            cmdList.add("1");
+            cmdList.add(frameDurationM);
 
             cmdList.add("-vframes");
             cmdList.add("9");

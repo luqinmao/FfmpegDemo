@@ -63,6 +63,10 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    public void jamyo(View view){
+        startActivity(new Intent(MainActivity.this,PPPActivity.class));
+    }
+
 
 
 }
