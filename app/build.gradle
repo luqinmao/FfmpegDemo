@@ -38,4 +38,7 @@ dependencies {
     testCompile 'junit:junit:4.12'
     compile files('libs/PermissionsManager.jar')
     compile files('libs/videoscalesdk_hx.jar')
+
+    compile 'com.jakewharton:butterknife:5.1.1'
+
 }
